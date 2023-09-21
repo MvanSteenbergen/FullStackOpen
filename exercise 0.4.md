@@ -1,3 +1,4 @@
+## Exercise 0.4
 ```mermaid
 sequenceDiagram
   participant browser
@@ -28,8 +29,5 @@ sequenceDiagram
   activate server
   server->>browser: [{"content":"lol","date":"2023-09-21T15:22:06.754Z"}...
   deactivate server;
-
-  
-  
-  
+  Note right of browser: The browser executes the callback function that renders the notes
 ```
