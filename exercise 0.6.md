@@ -1,3 +1,6 @@
+##Exercise 0.6
+
+```mermaid
 sequenceDiagram
     participant browser
     participant server
@@ -7,6 +10,7 @@ sequenceDiagram
     server-->>browser: Sends the node to the server.
     deactivate server
 
-    Note right of browser: Event handler of submit button creates a new note, adds it to and rerenders the notes list before server step 
+    Note right of browser: Event handler of submit button creates a new note, adds it to and rerenders the notes list before server step
+```
 
     
