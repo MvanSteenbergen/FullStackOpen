@@ -1,5 +1,7 @@
-sequenceDiagram
-    participant browser
+## Exercise 0.5
+
+```mermaid
+sequenceDiagram    participant browser
     participant server
 
     browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa
@@ -25,3 +27,4 @@ sequenceDiagram
     deactivate server
 
     Note right of browser: The browser executes the callback function that renders the notes
+```
