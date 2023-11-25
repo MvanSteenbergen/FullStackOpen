@@ -1,5 +1,5 @@
 import { useLayoutEffect } from "react"
-import Course from './Course.js'
+import Course from './Components/Course'
 
 const Courses = ( {courses} ) => {
   return (
