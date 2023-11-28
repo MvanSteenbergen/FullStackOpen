@@ -24,3 +24,9 @@ const notes = [
 ReactDOM.createRoot(document.getElementById('root')).render(
   <App notes={notes} />
 )
+
+const promise = axios.get('http://localhost:3001/persons')
+console.log(promise)
+
+const promise2 = axios.get('http://localhost:3001/foobar')
+console.log(promise2)

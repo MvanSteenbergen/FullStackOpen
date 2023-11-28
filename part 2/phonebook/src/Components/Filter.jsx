@@ -1,4 +1,4 @@
-export const Filter = ({ filter, handleFilter }) => {
+ const Filter = ({ filter, handleFilter }) => {
   return (
     <div>filter shown with
       <input
@@ -8,3 +8,4 @@ export const Filter = ({ filter, handleFilter }) => {
   )
 }
 
+export default Filter
