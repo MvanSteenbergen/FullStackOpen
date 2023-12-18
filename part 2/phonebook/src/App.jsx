@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Filter from './Components/Filter'
 import PersonForm from './Components/PersonForm'
 import Persons from './Components/Persons'
-import axios from 'axios'
+import personServices from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -12,10 +12,9 @@ const App = () => {
   const [personsToShow, setPersonsToShow] = useState([])
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        const initialPersons = response.data
+    personServices
+      .getAll()
+      .then(initialPersons => {
         setPersons(initialPersons)
         setFilter(filter)
         setPersonsToShow(initialPersons.filter(person => person.name.toLocaleLowerCase().includes(filter.toLowerCase())))
@@ -30,41 +29,47 @@ const App = () => {
         number: newNumber,
       }
     
-      axios
-        .post('http://localhost:3001/persons', newObject)
+      personServices
+        .create(newObject)
         .then(response => {
-          setPersons(persons.concat(response.data))
+          setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
-          setPersonsToShow(persons.concat(response.data).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))
+          setPersonsToShow(persons.concat(response).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))
         })
         .catch(() => alert("Failed to add person"))
 
     } else {
-      alert(`${newName} is already added to the phonebook`)
+      if (window.confirm(`${newName} is already added to the phonebook, do you want to change the person's number?`)) {
+        const newObject = {
+          name: newName,
+          number: newNumber,
+        }
+        
+      personServices
+        .update(newName, newObject)
+        .then(response => {
+          setPersons(persons.map(newObject => newObject.name !== name ? newObject : response.data))
+          setNewName('')
+          setNewNumber('')
+          setPersonsToShow()
+        })
+      }
     }
   }
 
   const deletePerson = (event, id) => {
     event.preventDefault()
+    if (window.confirm(`Do you really want to delete this person?`)) {
+      personServices
+        .deletePerson(id)
+        .then(() => {
+            setPersons(persons.filter(person => person.id != id))
+            setPersonsToShow(persons.filter(person => person.id != id).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))  
+        })
+        .catch(() => alert("Failed to delete"))
 
-    axios
-      .delete(`http://localhost:3001/persons/${id}`)
-      .then(() => {
-          setPersons(persons.filter(person => person.id != id))
-          setPersonsToShow(persons.filter(person => person.id != id).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))  
-      })
-      .catch(() => alert("Failed to delete"))
-
-    axios
-      .get('http://localhost:3001/persons/')
-      .then(response => {
-        console.log(response.data)
-        setPersons(response.data)
-        setPersonsToShow(response.data.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))
-      })
-      .catch(() => alert("Failed to delete person"))
-        
+    }
 
   }
   
@@ -80,8 +85,6 @@ const App = () => {
     setFilter(event.target.value)
     setPersonsToShow(persons.filter(person => person.name.toLowerCase().includes(event.target.value.toLowerCase())))
   }
-
-
 
   return (
     <div>
