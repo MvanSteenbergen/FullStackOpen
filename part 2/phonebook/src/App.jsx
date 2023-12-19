@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Filter from './Components/Filter'
+import Notification from './Components/Notification'
 import PersonForm from './Components/PersonForm'
 import Persons from './Components/Persons'
 import personServices from './services/persons'
@@ -10,6 +11,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [personsToShow, setPersonsToShow] = useState([])
+  const [notification, setNotification] = useState(null)
+  const [color, setColor] = useState('green')
 
   useEffect(() => {
     personServices
@@ -36,6 +39,13 @@ const App = () => {
           setNewName('')
           setNewNumber('')
           setPersonsToShow(persons.concat(response).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))
+          setColor('green')
+          setNotification(
+            `Added '${newObject.name}'`
+          )
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
         .catch(() => alert("Failed to add person"))
 
@@ -59,18 +69,26 @@ const App = () => {
   }
 
   const deletePerson = (event, id) => {
+    const deletedPerson = persons.find(n => n.id === id)
     event.preventDefault()
     if (window.confirm(`Do you really want to delete this person?`)) {
       personServices
         .deletePerson(id)
         .then(() => {
             setPersons(persons.filter(person => person.id != id))
-            setPersonsToShow(persons.filter(person => person.id != id).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))  
+            setPersonsToShow(persons.filter(person => person.id != id).filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))) 
         })
-        .catch(() => alert("Failed to delete"))
+        .catch(() => {
+          setColor("red")
+          setNotification(
+            `Information about ${deletedPerson.name} has already been removed from the server`
+          )
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
+        })
 
     }
-
   }
   
   const handleNameAdd = (event) => {
@@ -89,6 +107,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification  color={color} message={notification} />
       <Filter 
         value={filter} 
         handleFilter={handleFilter}   
