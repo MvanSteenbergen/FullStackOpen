@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import CountryList from './Components/CountryList'
 import Information from './Components/Information'
+import countryService from './services/countries'
 
+
+const api_key = import.meta.env.VITE_SOME_KEY
 
 const App = () => {
   const [value, setValue] = useState('')
@@ -12,23 +15,52 @@ const App = () => {
   const [length, setLength] = useState(100)
   const [countriesToShow, setCountriesToShow] = useState([])
   const [image, setImage] = useState('')
+  const [latlng, setLatlng] = useState([0, 0])
   const [languages, setLanguages] = useState({})
+  const [temperature, setTemperature] = useState(0)
+  const [wind, setWind] = useState(0)
+  const [icon, setIcon] = useState('')
 
 
   useEffect(() => {
-    console.log("fetching countries...")
     if(countryList){
-      axios
-        .get(`https://studies.cs.helsinki.fi/restcountries/api/all`)
-        .then(response => {
-          var updated = response.data.map(country => country.name.common)
+      countryService
+        .getList()
+        .then(countries => {
+          var updated = countries.map(country => country.name.common)
           setCountryList(updated)
           setCountriesToShow(updated)
           setLength(updated.length)
           setValue('')
-        })
+      })
     }
   }, [])
+
+  useEffect(() => {
+    if(country) {
+      countryService
+        .getCountry(country)
+        .then(country => {
+          setInformation(country)
+          setLatlng(country.capitalInfo.latlng)
+          setImage(country.flags.png)
+          setLanguages(country.languages)
+      })
+    }
+  }, [country])
+
+  useEffect(() => {
+    if(country) {
+      countryService
+        .getWeather(latlng, api_key)
+        .then(weather => {
+          setTemperature(weather.main.temp - 273.15)
+          setWind(weather.wind.speed)
+          setIcon(weather.weather[0].icon)
+      })
+    }
+  }, [information])
+
   
   const handleChange = (event) => {
     setValue(event.target.value)
@@ -41,13 +73,6 @@ const App = () => {
       var name = updated[0]
       console.log(name)
       setCountry(name)
-      axios
-        .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${name}`)
-        .then(response => {
-          setInformation(response.data)
-          setImage(response.data.flags.png)
-          setLanguages(response.data.languages)
-        })
     }
   }
 
@@ -56,13 +81,6 @@ const App = () => {
     setCountry(country)
     setCountriesToShow([country])
     setLength(1)
-    axios
-      .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${country}`)
-      .then(response => {
-        setInformation(response.data)
-        setImage(response.data.flags.png)
-        setLanguages(response.data.languages)
-      })
   }
 
   return (
@@ -74,6 +92,10 @@ const App = () => {
           information = {information}
           languages = {languages}
           image = {image}
+          latlng = {latlng}
+          temperature = {temperature}
+          wind = {wind}
+          icon = {icon}
         />
         :null
       }

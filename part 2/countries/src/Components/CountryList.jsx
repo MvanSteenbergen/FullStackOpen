@@ -12,5 +12,4 @@ const CountryList = ({ countriesToShow,  handleClick}) => {
     );
 };
 
-
 export default CountryList;
