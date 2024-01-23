@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import CountryList from './Components/CountryList'
+import Information from './Components/Information'
+
 
 const App = () => {
   const [value, setValue] = useState('')
@@ -48,41 +51,43 @@ const App = () => {
     }
   }
 
-  if (length == 1) {
-    if (information && languages && image) {
-      return (
-        <div>
-          find countries <input value={value} onChange={handleChange} />
-          <h1>{country}</h1>
-          <div>capital {information.capital} </div>
-          <div>area {information.area}</div>
-          <h3>languages: </h3>
-          <ul>
-            {Object.keys(languages).map(key => <li key={key}>{languages[key]}</li>)}
-          </ul>
-          <img src={image}/>
-        </div>
-    )
-    }
-    return (
-      <p>loading...</p>
-    )
+  const handleClick = (country) => {
+    setValue(country)
+    setCountry(country)
+    setCountriesToShow([country])
+    setLength(1)
+    axios
+      .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${country}`)
+      .then(response => {
+        setInformation(response.data)
+        setImage(response.data.flags.png)
+        setLanguages(response.data.languages)
+      })
   }
 
-
-  if (length < 10 && length > 1) {
-    return (
-      <div>
-        find countries <input value={value} onChange={handleChange} />
-        {countriesToShow.map(country => <div key={country}>{country}</div>)}
-      </div>
-    )
-  }
-  
   return (
     <div>
-      find countries <input value={value} onChange={handleChange} />
-      <p>too many countries</p>
+      Find countries <input value={value} onChange={handleChange} />
+      {length == 1 ?
+      <Information
+          country = {country}
+          information = {information}
+          languages = {languages}
+          image = {image}
+        />
+        :null
+      }
+      {length < 10 && length > 1 ?
+        <CountryList 
+          countriesToShow={countriesToShow}
+          handleClick={handleClick}
+        />
+        :null
+      }
+      {length > 10 ?
+        <p>Too many countries, please specify more clearly.</p>
+        :null
+      }
     </div>
   )
 }
