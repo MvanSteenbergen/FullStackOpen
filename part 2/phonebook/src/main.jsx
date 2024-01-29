@@ -9,10 +9,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>,
 )
-
-const promise = axios.get('http://localhost:3001/persons')
-console.log(promise)
-
-promise.then(response =>
-  console.log(response)
-)

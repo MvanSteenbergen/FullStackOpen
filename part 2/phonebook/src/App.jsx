@@ -20,9 +20,13 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
         setFilter(filter)
-        setPersonsToShow(initialPersons.filter(person => person.name.toLocaleLowerCase().includes(filter.toLowerCase())))
       })
-  }, [])
+  }, [persons])
+
+  useEffect(() => {
+    setPersonsToShow(persons.filter(person => person.name.toLocaleLowerCase().includes(filter.toLowerCase())))
+  }, [filter])
+
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -38,7 +42,6 @@ const App = () => {
           setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
-          setPersonsToShow(persons.concat(response).filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))
           setColor('green')
           setNotification(
             `Added '${newObject.name}'`
@@ -59,10 +62,9 @@ const App = () => {
       personServices
         .update(newName, newObject)
         .then(response => {
-          setPersons(persons.map(newObject => newObject.name !== name ? newObject : response.data))
+          setPersons(persons.filter(object => object.name !== newName ? newObject : response.data))
           setNewName('')
           setNewNumber('')
-          setPersonsToShow()
         })
       }
     }
@@ -76,7 +78,6 @@ const App = () => {
         .deletePerson(id)
         .then(() => {
             setPersons(persons.filter(person => person.id != id))
-            setPersonsToShow(persons.filter(person => person.id != id).filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))) 
         })
         .catch(() => {
           setColor("red")
