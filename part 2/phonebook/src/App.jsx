@@ -20,13 +20,15 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
         setFilter(filter)
+        setPersonsToShow(initialPersons)
       })
-  }, [persons])
+  }, [])
 
   useEffect(() => {
-    setPersonsToShow(persons.filter(person => person.name.toLocaleLowerCase().includes(filter.toLowerCase())))
-  }, [filter])
-
+    if(persons) {
+      setPersonsToShow(persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase())))
+    }
+  }, [persons, filter])
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -54,19 +56,22 @@ const App = () => {
 
     } else {
       if (window.confirm(`${newName} is already added to the phonebook, do you want to change the person's number?`)) {
+      const oldObject = persons.find(person => person.name === newName)
+
         const newObject = {
           name: newName,
           number: newNumber,
         }
         
       personServices
-        .update(newName, newObject)
+        .update(oldObject.id, newObject)
         .then(response => {
-          setPersons(persons.filter(object => object.name !== newName ? newObject : response.data))
+          setPersons(persons.map(person => person.name !== oldObject.name ? person : response))
           setNewName('')
           setNewNumber('')
         })
       }
+
     }
   }
 
@@ -78,6 +83,7 @@ const App = () => {
         .deletePerson(id)
         .then(() => {
             setPersons(persons.filter(person => person.id != id))
+            setPersonsToShow(persons.filter(person => person.id != id).filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))) 
         })
         .catch(() => {
           setColor("red")
